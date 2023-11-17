@@ -1,0 +1,103 @@
+CHANGES IN R-devel NEW FEATURES 
+
+‘z <- c(NA, 1i)’ now keeps the imaginary part ‘Im(z[1]) == 0’, no
+longer coercing to ‘NA_complex_’.  Simlarly, ‘cumsum(z)’ correctly sums
+real and imaginary parts separately, i.e., without “crosstalk” in case
+of ‘NA’s.
+
+
+CHANGES IN R 4.3.2 patched BUG FIXES 
+
+‘getS3method("t", "test")’ no longer finds the ‘t.test()’ function,
+fixing PR#18627.
+
+
+CHANGES IN R 4.3.0 DATES and TIMES 
+
+The mapping of Windows' names for time zones to \abbrIANA's ‘Olson’ names has been updated.  When ICU is available (it is by default), it is used to get a mapping for the current region set in Windows.  This can be overridden by setting environment variable ‘TZ’ to the desired Olson name - see ‘OlsonNames()’ for those currently available.
+
+CHANGES IN R 4.3.0 UTILITIES 
+
+‘R CMD check’ does more checking of package ‘.Rd’ files, warning about invalid email addresses and (some) invalid \abbrURIs and noting empty ‘\item’ labels in description lists.
+
+CHANGES IN R 4.2.1 NEW FEATURES 
+
+New function ‘utils::findCRANmirror()’ to find out if a \abbrCRAN mirror has been selected, otherwise fallback to the main site.  This behaves in the same way as ‘tools::CRAN_package_db()’ and is intended for packages wishing to access \abbrCRAN for purposes other than installing packages.  
+  The need for this was shown by a day when the main \abbrCRAN website was offline and a dozen or so packages which had its URL hardcoded failed their checks.
+
+CHANGES IN R 4.2.1 BUG FIXES 
+
+Environment variable ‘_R_CHECK_XREFS_REPOSITORIES_’ is only used for checking ‘.Rd’ cross-references in ‘R CMD check’ (as documented) and not for other uses looking for a \abbrCRAN mirror.
+
+
+The search for a \abbrCRAN mirror when checking packages now uses ‘getOption("repos")’ if that specifies a \abbrCRAN mirror, even when it does not also specify all three Bioconductor repositories (as was previously required).
+
+CHANGES IN R 4.2.0 WINDOWS 
+
+‘Rtools42’ by default uses the Windows security features ASLR and DEP; hence \abbrCRAN builds of R and packages also do.
+
+
+On Windows, ‘download.file(method = "auto")’ and ‘url(method = "default")’ now follow Unix in using ‘"libcurl"’ for all except ‘file://’ \abbrURIs.
+
+CHANGES IN R 4.2.0 UTILITIES 
+
+Errors in re-building vignettes (unless there are LaTeX errors) are reported by ‘R CMD check’ as ‘ERROR’ rather than ‘WARNING’ when running vignettes has been skipped (as it frequently is in \abbrCRAN checks and by ‘--as-cran’).
+
+CHANGES IN R 4.2.0 DEPRECATED AND DEFUNCT 
+
+The (non-default and deprecated) ‘method = "internal"’ for ‘download.file()’ and ‘url()’ no longer supports ‘http://’ nor ‘ftp://’ \abbrURIs.  (It is used only for ‘file://’ \abbrURIs.)  
+  On Windows, ‘download.file(method = "wininet")’ no longer supports ‘ftp://’ \abbrURIs.  (It is no longer the default method, which is ‘"libcurl"’ and does.)  
+  On Windows, the deprecated ‘method = "wininet"’ now gives a warning for ‘http://’ and ‘https://’ \abbrURIs for both ‘download.file()’ and ‘url()’. (It is no longer the default method.)
+
+CHANGES IN R 4.1.1 DEPRECATED AND DEFUNCT 
+
+Use of ‘ftp://’ \abbrURIs should be regarded as deprecated, with on-going support confined to ‘method = "libcurl"’ and not routinely tested.  (Nowadays no major browser supports them.)
+
+
+The non-default ‘method = "internal"’ is deprecated for ‘http://’ and ‘ftp://’ \abbrURIs for both ‘download.file’ and ‘url’.
+
+
+On Windows, ‘method = "wininet"’ is deprecated for ‘http://’, ‘https://’ and ‘ftp://’ \abbrURIs for both ‘download.file’ and ‘url’. (A warning is only given for ‘ftp://’.)  
+  For ‘ftp://’ \abbrURIs the default method is now ‘"libcurl"’ if available (which it is on \abbrCRAN builds).  
+  ‘method = "wininet"’ remains the default for ‘http://’ and ‘https://’ \abbrURIs but if ‘libcurl’ is available, using ‘method = "libcurl"’ is preferred.
+
+CHANGES IN R 4.1.0 NEW FEATURES 
+
+Functions ‘URLencode()’ and ‘URLdecode()’ in package ‘utils’ now work on vectors of \abbrURIs.  (Based on patch from Bob Rudis submitted with PR#17873.)
+
+
+‘curlGetHeaders()’ has two new arguments, ‘timeout’ to specify the timeout for that call (overriding ‘getOption("timeout")’) and ‘TLS’ to specify the minimum TLS protocol version to be used for ‘https://’ \abbrURIs (_inter alia_ providing a means to check for sites using deprecated TLS versions 1.0 and 1.1).
+
+CHANGES IN R 4.1.0 LINK-TIME OPTIMIZATION on a UNIX-ALIKE 
+
+Configuring with flag ‘--enable-lto=R’ now also uses \abbrLTO when installing the recommended packages.
+
+
+‘R CMD INSTALL’ and ‘R CMD SHLIB’ have a new flag ‘--use-LTO’ to use \abbrLTO when compiling code, for use with R configured with ‘--enable-lto=R’.  For R configured with ‘--enable-lto’, they have the new flag ‘--no-use-LTO’.  
+  Packages can opt in or out of \abbrLTO compilation _via_ a ‘UseLTO’ field in the ‘DESCRIPTION’ file.  (As usual this can be overridden by the command-line flags.)
+
+CHANGES IN R 4.1.0 PACKAGE INSTALLATION on Windows 
+
+‘R CMD INSTALL’ and ‘R CMD SHLIB’ make use of their flag ‘--use-LTO’ when the ‘LTO_OPT’ make macro is set in file ‘etc/${R_ARCH}/Makeconf’ or in a personal/site ‘Makevars’ file.  (For details see ‘Writing R Extensions’ §4.5.)  
+  This provides a valuable check on code consistency.  It does work with GCC 8.3 as in Rtools40, but that does not detect everything the \abbrCRAN checks with current GCC do.
+
+CHANGES IN R 4.1.0 PACKAGE INSTALLATION on macOS 
+
+The default personal library directory on builds with ‘--enable-aqua’ (including \abbrCRAN builds) now differs by CPU type, one of  
+        ~/Library/R/x86_64/x.y/library       ~/Library/R/arm64/x.y/library  
+  This uses the CPU type R (and hence the packages) were built for, so when a ‘x86_64’ build of R is run under Rosetta emulation on an ‘arm64’ Mac, the first is used.
+
+CHANGES IN R 4.1.0 UTILITIES 
+
+‘R CMD check’ now runs sanity checks on the use of ‘LazyData’, for example that a ‘data’ directory is present and that ‘LazyDataCompression’ is not specified without ‘LazyData’ and has a documented value.  For packages with large LazyData databases without specifying ‘LazyDataCompression’, there is a reference to the code given in ‘Writing R Extensions’ §1.1.6 to test the choice of compression (as in all the \abbrCRAN packages tested a non-default method was preferred).
+
+CHANGES IN R 4.0.3 LINK-TIME OPTIMIZATION on a UNIX-ALIKE 
+
+There is now support for parallelized Link-Time Optimization (\abbrLTO) with GCC and for ‘thin’ \abbrLTO with ‘clang’ _via_ setting the ‘LTO’ macro.
+
+
+There is support for setting a different \abbrLTO flag for the Fortran compiler, including to empty when mixing ‘clang’ and ‘gfortran’ (as on macOS).  See file ‘config.site’.
+
+
+There is a new ‘LTO_LD’ macro to set linker options for \abbrLTO compilation, for example to select an alternative linker or to parallelize thin \abbrLTO.
+

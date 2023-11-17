@@ -1,0 +1,7 @@
+CHANGES IN R 4.3.2 patched BUG FIXES 
+
+‘pdf()’ and ‘postscript()’ support for the documented Adobe encodings
+‘"Greek"’ and ‘"Cyrilllic"’ was missing (although the corresponding
+Windows' codepages could be used).
+
+
